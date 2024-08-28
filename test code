@@ -1,0 +1,157 @@
+from __future__ import print_function
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import classification_report
+from sklearn import metrics
+from sklearn import tree
+import warnings
+warnings.filterwarnings('ignore')
+data=pd.read_csv('Crop_recommendation.csv')
+data.head(5)
+data.tail(5)
+data.shape
+data.columns
+data['label'].unique()
+data.dtypes
+data['label'].value_counts()
+data.isnull().sum
+
+data.dropna(inplace=True)
+data.duplicated().sum()
+plt.figure(figsize=(15,6))
+sns.barplot(y="N", x="label", data=data,palette="hls")
+plt.xticks(rotation=90)
+plt.show()
+plt.figure(figsize=(15,6))
+sns.barplot(y="P", x="label", data=data,palette="hls")
+plt.xticks(rotation=90)
+plt.show()
+import random
+from IPython.core.display import update_display
+data.corr()
+sns.heatmap(data.corr(),annot=True)
+features = data[['N', 'P','K','temperature', 'humidity', 'ph', 'rainfall']]
+target = data['label']
+#features = data[['temperature', 'humidity', 'ph', 'rainfall']]
+labels = data['label']
+# Initialzing empty lists to append all model's name and corresponding name
+acc = []
+model = []
+# Splitting into train and test data
+
+from sklearn.model_selection import train_test_split
+Xtrain, Xtest, Ytrain, Ytest = train_test_split(features,target,test_size = 0.2,random_state =2)
+#RF
+from sklearn.ensemble import RandomForestClassifier
+
+RF = RandomForestClassifier(n_estimators=20, random_state=0)
+RF.fit(Xtrain,Ytrain)
+
+predicted_values = RF.predict(Xtest)
+
+x = metrics.accuracy_score(Ytest, predicted_values)
+acc.append(x)
+model.append('RF')
+print("RF's Accuracy is: ", x)
+
+print(classification_report(Ytest,predicted_values))
+
+data = np.array([[10,18, 59, 23.603016, 60.3, 6.7, 140.91]])
+prediction = RF.predict(data)
+print(prediction)
+data = np.array([[83, 45, 60, 28, 70.3, 7.0, 150.9]])
+prediction = RF.predict(data)
+print(prediction)
+data = np.array([[60, 55, 44, 23, 82.3, 7.8, 263]])
+prediction = RF.predict(data)
+print(prediction)
+data = np.array([[34, 65, 41, 29, 90, 6, 221]])
+prediction = RF.predict(data)
+print(prediction)
+import tkinter as tk
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+
+# Load the crop recommendation dataset
+crop_data = pd.read_csv('Crop_recommendation.csv')
+
+# Initialize the random forest classifier
+RF = RandomForestClassifier(n_estimators=20, random_state=0)
+RF.fit(crop_data.iloc[:, :-1], crop_data.iloc[:, -1])
+
+# Create the Tkinter GUI window
+root = tk.Tk()
+root.geometry('600x400')
+root.title('Crop Recommendation System')
+
+
+
+# Create the label for the input fields
+input_label = tk.Label(root, text='Enter the following parameters for your soil:')
+input_label.pack(pady=10)
+
+# Create the labels and entry fields for each input parameter
+n_label = tk.Label(root, text='Nitrogen (N):')
+n_label.pack()
+n_entry = tk.Entry(root)
+n_entry.pack()
+
+p_label = tk.Label(root, text='Phosphorous (P):')
+p_label.pack()
+p_entry = tk.Entry(root)
+p_entry.pack()
+
+k_label = tk.Label(root, text='Potassium (K):')
+k_label.pack()
+k_entry = tk.Entry(root)
+k_entry.pack()
+
+temp_label = tk.Label(root, text='Temperature (°C):')
+temp_label.pack()
+temp_entry = tk.Entry(root)
+temp_entry.pack()
+
+humid_label = tk.Label(root, text='Humidity (%):')
+humid_label.pack()
+humid_entry = tk.Entry(root)
+humid_entry.pack()
+
+ph_label = tk.Label(root, text='pH:')
+ph_label.pack()
+ph_entry = tk.Entry(root)
+ph_entry.pack()
+
+rain_label = tk.Label(root, text='Rainfall (mm):')
+rain_label.pack()
+rain_entry = tk.Entry(root)
+rain_entry.pack()
+
+# Create the function to get the input values and generate the crop recommendation
+def get_crop():
+    # Get the input values from the entry fields
+    N = float(n_entry.get())
+    P = float(p_entry.get())
+    K = float(k_entry.get())
+    temp = float(temp_entry.get())
+    humid = float(humid_entry.get())
+    pH = float(ph_entry.get())
+    rainfall = float(rain_entry.get())
+
+    # Use the random forest classifier to predict the crop based on the input values
+    prediction = RF.predict([[N, P, K, temp, humid, pH, rainfall]])
+
+    # Display the recommended crop
+    result_label.config(text=f"The recommended crop for your soil is: {prediction[0]}")
+
+# Create the button to submit the input values and generate the crop recommendation
+submit_button = tk.Button(root, text='Submit', command=get_crop)
+submit_button.pack(pady=10)
+
+# Create the label to display the recommended crop
+result_label = tk.Label(root, text='')
+result_label.pack()
+
+# Run the Tkinter event loop
+root.mainloop()
